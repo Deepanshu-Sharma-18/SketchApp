@@ -16,6 +16,8 @@ class _DrawingScreenState extends State<DrawingScreen> {
   late PersistentBottomSheetController controller;
   var isopen = false;
   Color _color = Colors.black;
+  var isEraser = false;
+  var selectedColor = Colors.black;
   var strokecontroller = TextEditingController()..text = '3';
 
   @override
@@ -29,23 +31,32 @@ class _DrawingScreenState extends State<DrawingScreen> {
                 controller = Scaffold.of(context).showBottomSheet(
                     (context) => Container(
                           decoration: const BoxDecoration(
-                              color: Color.fromARGB(248, 173, 225, 214),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20),
-                              )),
+                            color: Color.fromARGB(248, 217, 224, 222),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
+                          ),
                           height: 80,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Row(
                                 children: [
-                                  Card(
-                                    color: _color,
-                                    shape: const CircleBorder(),
-                                    child: const SizedBox(
-                                      height: 20,
-                                      width: 20,
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        _color = selectedColor;
+                                        isEraser = false;
+                                      });
+                                    },
+                                    child: Card(
+                                      color: selectedColor,
+                                      shape: const CircleBorder(),
+                                      child: const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(
@@ -70,6 +81,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
                                                 pickerColor: _color,
                                                 onColorChanged: (value) {
                                                   setState(() {
+                                                    selectedColor = _color;
                                                     _color = value;
                                                   });
                                                 },
@@ -102,7 +114,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
-                                    height: 20,
+                                    height: 30,
                                     width: 30,
                                     child: Column(
                                       mainAxisAlignment:
@@ -110,14 +122,6 @@ class _DrawingScreenState extends State<DrawingScreen> {
                                       children: [
                                         Container(
                                           height: 2,
-                                          width: 10,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              color: Colors.white),
-                                        ),
-                                        Container(
-                                          height: 3,
                                           width: 13,
                                           decoration: BoxDecoration(
                                               borderRadius:
@@ -125,8 +129,16 @@ class _DrawingScreenState extends State<DrawingScreen> {
                                               color: Colors.white),
                                         ),
                                         Container(
-                                          height: 4,
+                                          height: 3,
                                           width: 15,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              color: Colors.white),
+                                        ),
+                                        Container(
+                                          height: 4,
+                                          width: 18,
                                           decoration: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(8),
@@ -160,19 +172,40 @@ class _DrawingScreenState extends State<DrawingScreen> {
                                   ),
                                 ],
                               ),
-                              InkWell(
-                                  onTap: () {
-                                    _color = Colors.white;
-                                  },
-                                  child: Image.asset(
-                                    'assets/eraser.png',
-                                    height: 20,
-                                    color: Colors.white,
-                                  )),
+                              StatefulBuilder(builder: (context, setState) {
+                                return InkWell(
+                                    onTap: () {
+                                      if (isEraser) {
+                                        setState(() {
+                                          _color = selectedColor;
+                                          isEraser = false;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          _color = Colors.white;
+                                          isEraser = true;
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: isEraser == false
+                                            ? Colors.transparent
+                                            : Colors.grey,
+                                      ),
+                                      child: Image.asset(
+                                        'assets/eraser.png',
+                                        height: 20,
+                                        color: Colors.white,
+                                      ),
+                                    ));
+                              }),
                               IconButton(
                                 onPressed: () {
                                   setState(() {
-                                    _color = Colors.black;
+                                    _color = selectedColor;
                                     strokecontroller.text = 5.toString();
                                     offsetPos = [];
                                   });
